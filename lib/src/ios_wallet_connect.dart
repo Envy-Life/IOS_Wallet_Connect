@@ -171,9 +171,6 @@ class IosWalletConnect {
         throw Exception(retMap['errorMessage']);
       }
 
-      print(retMap[
-          '${wallet.substring(0, wallet.indexOf('.'))}_encryption_public_key']!);
-
       createSharedSecret(Uint8List.fromList(base58decode(retMap[
           '${wallet.substring(0, wallet.indexOf('.'))}_encryption_public_key']!)));
       retMap = {
