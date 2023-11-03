@@ -1,16 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:solana/solana.dart';
-import 'dart:convert';
-import 'package:pinenacl/digests.dart';
 import 'package:pinenacl/x25519.dart';
-import 'package:solana/base58.dart';
-import 'package:url_launcher/url_launcher.dart';
-import "package:uni_links/uni_links.dart";
 import 'package:ios_wallet_connect/ios_wallet_connect.dart';
-import 'package:hive/hive.dart';
 
 void main() {
   runApp(const MyApp());
@@ -74,33 +64,33 @@ class _MyHomePageState extends State<MyHomePage> {
               var session = await client.connect(cluster: "devnet");
               print(session);
             }, "Connect"),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Button(() async {
               var session = await client.signTransaction(
                   transaction: Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 9]));
               print(session);
             }, "Sign Transaction"),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Button(() async {
               var session = await client.signAllTransactions(transactions: [
                 Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 9])
               ]);
               print(session);
             }, "Sign All Transactions"),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Button(() async {
               var session = await client.signAndSendTransaction(
                   transaction: Uint8List.fromList([1, 2, 3, 4, 5, 6, 7, 8, 9]));
               print(session);
             }, "Sign and Send Transaction"),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Button(() async {
               var session = await client.connect(cluster: "devnet");
               print(session);
             }, "Sign Message"),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Button(() async {
-              var session = await client.disConnect();
+              await client.disConnect();
             }, "Disconnect"),
           ],
         ),
