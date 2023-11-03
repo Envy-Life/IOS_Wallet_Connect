@@ -12,7 +12,7 @@ import 'package:path_provider/path_provider.dart';
 
 const String iosWalletStoreName = 'com.EnvyLife.IOSWalletStore';
 
-class IosWalletStore {
+class _IosWalletStore {
   static hive.Box get instance => hive.Hive.box(iosWalletStoreName);
 
   init() async {
@@ -22,14 +22,14 @@ class IosWalletStore {
   }
 }
 
-class IosWalletStoreModel {
+class _IosWalletStoreModel {
   late PrivateKey dAppSecretKey;
   late PublicKey dAppPublicKey;
   String? sessionToken;
   String? userPublicKey;
   PublicKey? walletPublicKey;
 
-  IosWalletStoreModel({
+  _IosWalletStoreModel({
     required String dAppSecretKey,
     required String dAppPublicKey,
     this.sessionToken,
@@ -46,8 +46,8 @@ class IosWalletStoreModel {
     }
   }
 
-  factory IosWalletStoreModel.fromJson(Map<dynamic, dynamic> json) {
-    return IosWalletStoreModel(
+  factory _IosWalletStoreModel.fromJson(Map<dynamic, dynamic> json) {
+    return _IosWalletStoreModel(
       dAppSecretKey: json['dAppSecretKey'],
       dAppPublicKey: json['dAppPublicKey'],
       sessionToken: json['sessionToken'],
@@ -89,7 +89,7 @@ class IosWalletStoreModel {
 class IosWalletConnect {
   final String appUrl;
   final String deepLinkUrl;
-  IosWalletStoreModel? _model;
+  _IosWalletStoreModel? _model;
   late Box? _sharedSecret;
 
   IosWalletConnect({
@@ -100,24 +100,24 @@ class IosWalletConnect {
   Future<void> init() async {
     await populateIosWalletStore();
     if (_model!.sessionToken != null) {
-      createSharedSecret(_model!.walletPublicKey!.toUint8List());
+      _createSharedSecret(_model!.walletPublicKey!.toUint8List());
     }
   }
 
   Future<void> populateIosWalletStore() async {
-    await IosWalletStore().init();
-    final store = IosWalletStore.instance;
+    await _IosWalletStore().init();
+    final store = _IosWalletStore.instance;
     if (store.isEmpty) {
       final keyPair = PrivateKey.generate();
       final dAppSecretKey = base58encode(keyPair);
       final dAppPublicKey = base58encode(keyPair.publicKey);
-      final model = IosWalletStoreModel(
+      final model = _IosWalletStoreModel(
         dAppSecretKey: dAppSecretKey,
         dAppPublicKey: dAppPublicKey,
       );
       await store.put('model', model.toJson());
     }
-    _model = IosWalletStoreModel.fromJson((store.get('model')));
+    _model = _IosWalletStoreModel.fromJson((store.get('model')));
   }
 
   Future<Map?> connect({
@@ -153,7 +153,7 @@ class IosWalletConnect {
 
       int tries = 10;
       while (recievedUri == "" && tries-- > 0) {
-        await Future.delayed(Duration(seconds: 3));
+        await Future.delayed(const Duration(seconds: 3));
       }
 
       await _sub.cancel();
@@ -171,11 +171,11 @@ class IosWalletConnect {
         throw Exception(retMap['errorMessage']);
       }
 
-      createSharedSecret(Uint8List.fromList(base58decode(retMap[
+      _createSharedSecret(Uint8List.fromList(base58decode(retMap[
           '${wallet.substring(0, wallet.indexOf('.'))}_encryption_public_key']!)));
       retMap = {
         ...retMap,
-        ...decryptPayload(
+        ..._decryptPayload(
           data: retMap["data"]!,
           nonce: retMap["nonce"]!,
         ),
@@ -185,7 +185,7 @@ class IosWalletConnect {
       _model!.setUserPublicKey(retMap['public_key']);
       _model!.setWalletPublicKey(PublicKey(Uint8List.fromList(base58decode(retMap[
           '${wallet.substring(0, wallet.indexOf('.'))}_encryption_public_key']!))));
-      await IosWalletStore.instance.put('model', _model!.toJson());
+      await _IosWalletStore.instance.put('model', _model!.toJson());
 
       return retMap;
     } else {
@@ -198,7 +198,7 @@ class IosWalletConnect {
     String path = "/ul/v1/disconnect",
     String? redirect,
   }) async {
-    final payload = encryptPayload({
+    final payload = _encryptPayload({
       "session": _model!.sessionToken,
     });
     final uri = Uri(
@@ -232,7 +232,7 @@ class IosWalletConnect {
 
       int tries = 10;
       while (recievedUri == "" && tries-- > 0) {
-        await Future.delayed(Duration(seconds: 3));
+        await Future.delayed(const Duration(seconds: 3));
       }
 
       if (recievedUri == "") {
@@ -250,7 +250,7 @@ class IosWalletConnect {
       _model!.setSessionToken(null);
       _model!.setUserPublicKey(null);
       _model!.setWalletPublicKey(null);
-      IosWalletStore.instance.put('model', _model!.toJson());
+      _IosWalletStore.instance.put('model', _model!.toJson());
 
       await _sub.cancel();
 
@@ -266,7 +266,7 @@ class IosWalletConnect {
     String? redirect,
     required Uint8List transaction,
   }) async {
-    final payload = encryptPayload({
+    final payload = _encryptPayload({
       "session": _model!.sessionToken,
       "transaction": base58encode(transaction),
     });
@@ -302,7 +302,7 @@ class IosWalletConnect {
 
       int tries = 10;
       while (recievedUri == "" && tries-- > 0) {
-        await Future.delayed(Duration(seconds: 3));
+        await Future.delayed(const Duration(seconds: 3));
       }
 
       await _sub.cancel();
@@ -321,7 +321,7 @@ class IosWalletConnect {
 
       retMap = {
         ...retMap,
-        ...decryptPayload(
+        ..._decryptPayload(
           data: retMap["data"]!,
           nonce: retMap["nonce"]!,
         ),
@@ -339,7 +339,7 @@ class IosWalletConnect {
     String? redirect,
     required List<Uint8List> transactions,
   }) async {
-    final payload = encryptPayload({
+    final payload = _encryptPayload({
       "session": _model!.sessionToken,
       "transactions": transactions.map((e) => base58encode(e)).toList(),
     });
@@ -375,7 +375,7 @@ class IosWalletConnect {
 
       int tries = 10;
       while (recievedUri == "" && tries-- > 0) {
-        await Future.delayed(Duration(seconds: 3));
+        await Future.delayed(const Duration(seconds: 3));
       }
 
       await _sub.cancel();
@@ -394,7 +394,7 @@ class IosWalletConnect {
 
       retMap = {
         ...retMap,
-        ...decryptPayload(
+        ..._decryptPayload(
           data: retMap["data"]!,
           nonce: retMap["nonce"]!,
         ),
@@ -413,7 +413,7 @@ class IosWalletConnect {
     required Uint8List transaction,
     String? sendOptions,
   }) async {
-    final payload = encryptPayload({
+    final payload = _encryptPayload({
       "session": _model!.sessionToken,
       "transactions": base58encode(transaction),
       "sendOptions": sendOptions,
@@ -450,7 +450,7 @@ class IosWalletConnect {
 
       int tries = 10;
       while (recievedUri == "" && tries-- > 0) {
-        await Future.delayed(Duration(seconds: 3));
+        await Future.delayed(const Duration(seconds: 3));
       }
 
       await _sub.cancel();
@@ -470,7 +470,7 @@ class IosWalletConnect {
 
       retMap = {
         ...retMap,
-        ...decryptPayload(
+        ..._decryptPayload(
           data: retMap["data"]!,
           nonce: retMap["nonce"]!,
         ),
@@ -489,7 +489,7 @@ class IosWalletConnect {
     required Uint8List message,
     String display = 'utf8',
   }) async {
-    final payload = encryptPayload({
+    final payload = _encryptPayload({
       "session": _model!.sessionToken,
       "message": base58encode(message),
       "display": display,
@@ -527,7 +527,7 @@ class IosWalletConnect {
 
       int tries = 10;
       while (recievedUri == "" && tries-- > 0) {
-        await Future.delayed(Duration(seconds: 3));
+        await Future.delayed(const Duration(seconds: 3));
       }
 
       await _sub.cancel();
@@ -546,7 +546,7 @@ class IosWalletConnect {
 
       retMap = {
         ...retMap,
-        ...decryptPayload(
+        ..._decryptPayload(
           data: retMap["data"]!,
           nonce: retMap["nonce"]!,
         ),
@@ -562,7 +562,7 @@ class IosWalletConnect {
   /// Created a shared secret between Phantom Wallet and our DApp using our [_dAppSecretKey] and [${wallet}_encryption_public_key].
   ///
   /// - `${wallet}_encryption_public_key` is the public key of Wallet.
-  void createSharedSecret(Uint8List remotePubKey) async {
+  void _createSharedSecret(Uint8List remotePubKey) async {
     _sharedSecret = Box(
       myPrivateKey: _model!.dAppSecretKey,
       theirPublicKey: PublicKey(remotePubKey),
@@ -574,7 +574,7 @@ class IosWalletConnect {
   ///
   /// - Using [nonce] we generated on server side and [dAppSecretKey] we decrypt the encrypted data.
   /// - Returns the decrypted `payload` as a `Map<dynamic, dynamic>`.
-  Map<dynamic, dynamic> decryptPayload({
+  Map<dynamic, dynamic> _decryptPayload({
     required String data,
     required String nonce,
   }) {
@@ -596,7 +596,7 @@ class IosWalletConnect {
   /// Encrypts the data payload to be sent to  Wallet.
   ///
   /// - Returns the encrypted `payload` and `nonce`.
-  Map<String, dynamic> encryptPayload(Map<String, dynamic> data) {
+  Map<String, dynamic> _encryptPayload(Map<String, dynamic> data) {
     if (_sharedSecret == null) {
       throw Exception('Shared secret not created');
     }

@@ -1,3 +1,7 @@
+## 0.2,1
+
+* Made helper and model classes private
+
 ## 0.2.0
 
 * Fixed Bugs and cleared up

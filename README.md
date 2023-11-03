@@ -1,5 +1,6 @@
 # IOS Wallet connect
+## Bringing dApps to IOS
 
-Uses deeplinks to connect to the wallet.
-Can be used as a monkey patch for the wallet connect library.
-Brings dApps to IOS.
+check Example folder for a working example
+
+For method workings refer to https://docs.phantom.app/phantom-deeplinks/provider-methods

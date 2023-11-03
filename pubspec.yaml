@@ -1,6 +1,6 @@
 name: ios_wallet_connect
 description: A flutter plugin to handle Solana wallet connects for iOS using Deeplinks. Provides similar functionality to solana_wallet_adapter package.
-version: 0.2.0
+version: 0.2.1
 homepage: https://github.com/Envy-Life/IOS_Wallet_Connect
 repository: https://github.com/Envy-Life/IOS_Wallet_Connect
 
